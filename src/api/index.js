@@ -51,7 +51,6 @@ async function createServer() {
     requestTracing,
     secureContext,
     pulse,
-    mongoDb,
     router
   ])
 
