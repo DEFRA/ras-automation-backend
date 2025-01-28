@@ -4,6 +4,7 @@
     "checkJs": false,
     "module": "NodeNext",
     "noEmit": true,
+    "baseUrl": "./",
     "paths": {
       "~/*": ["./*"]
     },

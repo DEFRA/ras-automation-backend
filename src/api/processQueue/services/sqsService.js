@@ -1,7 +1,7 @@
 import axios from 'axios'
 import AWS from 'aws-sdk'
-import { createLogger } from '../../common/helpers/logging/logger.js'
-import { config } from '../../../config/index.js'
+import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
+import { config } from '~/src/config/index.js'
 
 const awsRegion = config.get('awsRegion')
 const awsAccessKeyId = config.get('awsAccessKeyId')

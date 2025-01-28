@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { getAccessToken } from './msalService.js'
 import { createLogger } from '../../common/helpers/logging/logger.js'
-import { config } from '../../../config/index.js'
+import { config } from '~/src/config/index.js'
 
 const baseUrl = 'https://graph.microsoft.com/v1.0'
 const logger = createLogger()
