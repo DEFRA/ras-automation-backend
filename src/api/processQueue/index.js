@@ -1,4 +1,4 @@
-import { processSqsMessages } from '../processQueue/controllers/index.js'
+import { processSqsMessages } from '~/src/api/processQueue/controllers/index.js'
 
 /**
  * @satisfies {ServerRegisterPluginObject<void>}

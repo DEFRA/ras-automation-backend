@@ -1,12 +1,12 @@
-import { consumeMessages } from '../services/sqsService.js'
+import { consumeMessages } from '~/src/api/processQueue/services/sqsService.js'
 import {
   fetchFileContent,
   uploadFileToSharePoint
-} from '../services/sharepointService.js'
-import { transformExcelData } from '../services/transformService.js'
-import { sendEmails } from '../services/emailService.js'
-import { createLogger } from '../../common/helpers/logging/logger.js'
-import { statusCodes } from '../../common/constants/status-codes.js'
+} from '~/src/api/processQueue/services/sharepointService.js'
+import { transformExcelData } from '~/src/api/processQueue/services/transformService.js'
+import { sendEmails } from '~/src/api/processQueue/services/emailService.js'
+import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
+import { statusCodes } from '~/src/api/common/constants/status-codes.js'
 
 export const processSqsMessages = {
   handler: async (_request, h) => {

@@ -1,5 +1,5 @@
-import { health } from './health/index.js'
-import { processQueue } from './processQueue/index.js'
+import { health } from '~/src/api/health/index.js'
+import { processQueue } from '~/src/api/processQueue/index.js'
 
 /**
  * @satisfies { import('@hapi/hapi').ServerRegisterPluginObject<*> }

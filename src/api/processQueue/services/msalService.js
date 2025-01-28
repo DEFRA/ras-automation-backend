@@ -1,5 +1,5 @@
-import { msalClient } from '../config/msal.js'
-import { createLogger } from '../../common/helpers/logging/logger.js'
+import { msalClient } from '~/src/api/processQueue/config/msal.js'
+import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 
 export const getAccessToken = async () => {
   const logger = createLogger()

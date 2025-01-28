@@ -1,5 +1,5 @@
-import { createLogger } from '../../common/helpers/logging/logger.js'
-import { config } from '../../../../src/config/index.js'
+import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
+import { config } from '~/src/config/index.js'
 import { NotifyClient } from 'notifications-node-client'
 
 export const sendEmails = async () => {
