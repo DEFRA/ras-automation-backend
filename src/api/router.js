@@ -1,5 +1,5 @@
-import { health } from '~/src/api/health/index.js'
-import { example } from '~/src/api/example/index.js'
+import { health } from './health/index.js'
+import { processQueue } from './processQueue/index.js'
 
 /**
  * @satisfies { import('@hapi/hapi').ServerRegisterPluginObject<*> }
@@ -12,7 +12,7 @@ const router = {
       await server.register([health])
 
       // Application specific routes, add your own routes here.
-      await server.register([example])
+      await server.register([processQueue])
     }
   }
 }

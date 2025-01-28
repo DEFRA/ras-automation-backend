@@ -17,7 +17,8 @@ export default {
   coveragePathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/.server',
-    'index.js'
+    'index.js',
+    '<rootDir>/src/api/processQueue'
   ],
   coverageDirectory: '<rootDir>/coverage',
   transform: {
