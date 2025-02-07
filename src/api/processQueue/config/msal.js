@@ -8,7 +8,7 @@ const clientSecret = config.get('azClientSecret')
 const msalConfig = {
   auth: {
     clientId,
-    authority: tenantId,
+    authority: `https://login.microsoftonline.com/${tenantId}`,
     clientSecret
   }
 }

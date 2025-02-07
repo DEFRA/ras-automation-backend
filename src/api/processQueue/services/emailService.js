@@ -9,7 +9,9 @@ export const sendEmails = async () => {
   const logger = createLogger()
 
   // list of users to send emails to multiple users
-  const users = [{ email: 'eswardev.nekkanti@cognizant.com', name: 'dev' }]
+  const users = [
+    { email: 'eswardev.nekkanti@cognizant.com', name: 'eshwar dev' }
+  ]
 
   for (const user of users) {
     // eslint-disable-next-line no-console
@@ -28,12 +30,8 @@ export const sendEmails = async () => {
       })
 
       // eslint-disable-next-line no-console
-      console.log('response', response)
-
-      logger.log(`Email sent successfully to : ${user.email}`, response)
+      console.log(`Email sent successfully to : ${user.email}`, response)
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('error', error)
       logger.error(error)
     }
   }

@@ -44,6 +44,7 @@
     "aws4": "^1.13.2",
     "babel-plugin-module-resolver": "^5.0.2",
     "convict": "^6.2.4",
+    "exceljs": "^4.4.0",
     "hapi-pino": "^12.1.0",
     "hapi-pulse": "^3.0.1",
     "https-proxy-agent": "^7.0.5",

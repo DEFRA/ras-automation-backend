@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { getAccessToken } from './msalService.js'
-import { createLogger } from '../../common/helpers/logging/logger.js'
+import { getAccessToken } from '~/src/api/processQueue/services/msalService.js'
+import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 import { config } from '~/src/config/index.js'
 
 const baseUrl = 'https://graph.microsoft.com/v1.0'
@@ -17,8 +17,9 @@ export const fetchFileContent = async (filePath) => {
       headers: {
         Authorization: `Bearer ${accessToken}`
       },
-      responseType: 'arrayBuffer'
+      responseType: 'arraybuffer'
     })
+
     return response.data
   } catch (error) {
     logger.error('Error fetching updated file:', error)
@@ -28,9 +29,9 @@ export const fetchFileContent = async (filePath) => {
 
 export const uploadFileToSharePoint = async (filePath, transformedBuffer) => {
   const accessToken = await getAccessToken()
-  const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/drives/${driveId}/root:${filePath}:/content`
+  const url = `${baseUrl}/${siteId}/drives/${driveId}/root:${filePath}:/content`
   try {
-    await axios.put(url, transformedBuffer, {
+    await axios.post(url, transformedBuffer, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
