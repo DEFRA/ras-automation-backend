@@ -1,7 +1,6 @@
 import ExcelJS from 'exceljs'
 import { loadExcelToMap } from '~/src/api/processQueue/utils/loadExcelToMap.js'
 import { read, write } from 'xlsx'
-import fs from 'fs'
 
 export const getMappingDataForExcel = async (sourceFile, columnName) => {
   try {
@@ -38,7 +37,7 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
     )
 
     const getAddressCore4 = headerRow.values.findIndex(
-      (value) => value === 'Address1 line5'
+      (value) => value === 'County'
     )
 
     const getPostCodeCore = headerRow.values.findIndex(
@@ -70,45 +69,55 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
     }
 
     const CPH_CODE = await loadExcelToMap(
-      fs.readFileSync('SBI_FRN_CPH.xlsx'),
+      sourceFile[0],
       'SBI',
-      'CPH_CODE',
+      ['CPH_CODE'],
       'FRN_CPH_SBI'
     )
 
-    const FRN_CODE = await loadExcelToMap(
-      fs.readFileSync('SBI_FRN_CPH.xlsx'),
-      'SBI',
-      'FRN',
-      'FRN_CPH_SBI'
+    const LMT_CORE = await loadExcelToMap(
+      sourceFile[1],
+      'Enter CPH data in this column',
+      ['SEO Group'],
+      'CPH to SEO group Match'
     )
+
+    const SEO_GROUP = await loadExcelToMap(
+      sourceFile[1],
+      'County',
+      ['SEOGroup'],
+      'CPH to SEO group Match'
+    )
+
+    const SEO_GROUP_SHORE_SPLIT = await loadExcelToMap(
+      sourceFile[1],
+      'County & Parish Number',
+      ['AREA'],
+      '35 Shropshire Split'
+    )
+
+    const LMT_CORE_CONVERSION = (value = '', CPHValue = '', county) => {
+      if (CPHValue === null || CPHValue === '') {
+        const result = SEO_GROUP?.get(county)?.SEOGroup || null
+        return result
+      }
+      if (CPHValue.split('/')[0] === '35') {
+        return SEO_GROUP_SHORE_SPLIT?.get(CPHValue.split('/')[1])?.AREA || null
+      }
+      return value
+    }
 
     const PHONE_NO = await loadExcelToMap(
       sourceFile[4],
       'SBI',
-      'LANDLINE',
-      'CS_MEASURES'
-    )
-
-    const MOBILE_NO = await loadExcelToMap(
-      sourceFile[4],
-      'SBI',
-      'MOBILE',
+      ['LANDLINE', 'MOBILE', 'FRN'],
       'CS_MEASURES'
     )
 
     const CLAIM_VALUE_DOSSIER = await loadExcelToMap(
       sourceFile[2],
       'Project Ref',
-      'Forecast claim (grant) value',
-      'giles_report_official_sensitive',
-      4
-    )
-
-    const SELECTION_BASIS_RDP = await loadExcelToMap(
-      sourceFile[2],
-      'Project Ref',
-      'Sub Scheme',
+      ['Forecast claim (grant) value', 'Sub Scheme'],
       'giles_report_official_sensitive',
       4
     )
@@ -127,31 +136,45 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
             ...obj,
             SBICore: row.getCell(getSBIIndex).value,
             CPHCore:
-              CPH_CODE.get(row.getCell(getSBIIndex).value.toString()) ||
-              row.getCell(getSBIIndex).value,
-            FRNCore:
-              Number(FRN_CODE.get(row.getCell(getSBIIndex).value.toString())) ||
-              null,
-            phoneNoCore: PHONE_NO.get(row.getCell(getSBIIndex).value),
-            mobileCore: MOBILE_NO.get(row.getCell(getSBIIndex).value),
-            customerNameCore: row.getCell(getBusinessNameIndex).value,
-            claimValueDossier: CLAIM_VALUE_DOSSIER.get(
-              row.getCell(columnIndex).value
-            ),
-            agreementRefCore: row.getCell(columnIndex).value,
+              CPH_CODE?.get(row.getCell(getSBIIndex).value.toString())
+                ?.CPH_CODE || null,
+            limtCore:
+              LMT_CORE_CONVERSION(
+                LMT_CORE?.get(
+                  CPH_CODE.get(row.getCell(getSBIIndex).value.toString())
+                    ?.CPH_CODE
+                )?.['SEO Group']?.result,
+                CPH_CODE.get(row.getCell(getSBIIndex).value.toString())
+                  ?.CPH_CODE,
+                row.getCell(getAddressCore4).value
+              ) ?? null,
+            FRNCore: PHONE_NO.get(row.getCell(getSBIIndex).value)?.FRN || null,
+            phoneNoCore: PHONE_NO.get(row.getCell(getSBIIndex).value)?.LANDLINE,
+            mobileCore: PHONE_NO.get(row.getCell(getSBIIndex).value)?.MOBILE,
+            customerNameCore: row.getCell(getBusinessNameIndex)?.value,
+            claimValueDossier:
+              CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
+                'Forecast claim (grant) value'
+              ] || null,
+            agreementRefCore: row.getCell(columnIndex)?.value,
             highValueCore:
               CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value) > 50000
                 ? 'Y'
                 : 'N',
             lifetimeValueRDP: CLAIM_VALUE_DOSSIER.get(
               row.getCell(columnIndex).value
-            ),
+            )?.['Forecast claim (grant) value'],
             addressCore4: row.getCell(getAddressCore4).value,
             postCodeCore: row.getCell(getPostCodeCore).value,
             selectionBasisRDP:
               selectionBasisRDPConversion[
-                SELECTION_BASIS_RDP.get(row.getCell(columnIndex).value)
-              ] || SELECTION_BASIS_RDP.get(row.getCell(columnIndex).value)
+                CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
+                  'Sub Scheme'
+                ]
+              ] ||
+              CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
+                'Sub Scheme'
+              ]
           })
         }
       }

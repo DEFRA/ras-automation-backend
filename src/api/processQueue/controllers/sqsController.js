@@ -11,29 +11,25 @@ export const processSqsMessages = {
 
     const messages = [
       {
-        fileName: 'SBI_FRN_CPH.xlsb',
-        filePath: '/Selection/FETF/SBI_FRN_CPH.xlsb'
+        fileName: 'SBI_FRN_CPH.xlsx',
+        filePath: '/Selection/FETF/SBI_FRN_CPH.xlsx'
       },
       {
         fileName: 'CPH_SEO_Group_Look_Up_Table_V4_23.01.2025',
         filePath:
-          '/Selection/FETF/CPH_SEO_Group_Look_Up_Table_V4_23.01.2025.xlsx',
-        sheetName: ''
+          '/Selection/FETF/CPH_SEO_Group_Look_Up_Table_V4_23.01.2025.xlsx'
       },
       {
         fileName: 'giles_report_official_sensitive_1.xlsb',
-        filePath: '/Selection/FETF/giles_report_official_sensitive_1.xlsb',
-        sheetName: 'giles_report_official_sensitive'
+        filePath: '/Selection/FETF/giles_report_official_sensitive_1.xlsb'
       },
       {
         fileName: 'giles_report_official_sensitive_2b.xlsb',
-        filePath: '/Selection/FETF/giles_report_official_sensitive_2b.xls.xlsb',
-        sheetName: 'giles_report_official_sensitive'
+        filePath: '/Selection/FETF/giles_report_official_sensitive_2b.xls.xlsb'
       },
       {
         fileName: 'CS_MEASURES.xlsb',
-        filePath: '/Selection/FETF/CS_MEASURES.xlsb',
-        sheetName: 'CS_MEASURES'
+        filePath: '/Selection/FETF/CS_MEASURES.xlsb'
       }
     ]
 
@@ -50,9 +46,6 @@ export const processSqsMessages = {
     }
 
     await transformExcelData(JSONArray)
-
-    // Upload transformed content back to sharepoint
-    // await uploadFileToSharePoint(newFilePath, transformedContent)
 
     // Send Email to notify Users
     await sendEmails()

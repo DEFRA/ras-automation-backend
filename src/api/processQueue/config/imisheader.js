@@ -830,56 +830,77 @@ export const headersFirstTab = [
   {
     header: 'Input constraints',
     key: 'id',
-    width: 1000
+    width: 200
   }
 ]
 
 // Define colors for different rows
 export const rowColors = [
-  { color: 'FFFF0000', value: 'Yellow indicates DATE' },
-  { color: 'FF00FF00', value: 'Blue indicates TEXT' },
-  { color: 'FF0000FF', value: 'Orange indicates Y or N' },
-  { color: 'FFFFFF00', value: 'Turquoise indicates NUMERIC' },
-  { color: 'FFFFA500', value: 'Purple indicates TIME as HH or HH:MM' },
-  { value: '' },
-  { value: '' },
+  { color: 'FFFF00', value: 'Yellow indicates DATE' },
+  { color: '0000FF', value: 'Blue indicates TEXT' },
+  { color: 'FFA500', value: 'Orange indicates Y or N' },
+  { color: '30D5C8', value: 'Turquoise indicates NUMERIC' },
+  { color: '9D00FF', value: 'Purple indicates TIME as HH or HH:MM' },
+  { color: 'FFFFFF', value: '' },
+  { color: 'FFFFFF', value: '' },
   {
+    color: 'FFFFFF',
     value:
       '1. Do not insert columns or re-name headings within the Inspections tab.'
   },
   {
+    color: 'FFFFFF',
     value:
       '2. Do not re-name or delete the tabs at the bottom of this document as it will make the upload fail.'
   },
   {
+    color: 'FFFFFF',
     value:
       '3. Refer to the cell notes behind the top row for guidance relating to formatting and data entry.'
   },
   {
+    color: 'FFFFFF',
     value:
       '4. Use columns DO onwards to record other information, however this will not be loaded into IMIS unless workarounds are used to recycle redundant fields. Liaise with Design if this information is required.'
   },
   {
+    color: 'FFFFFF',
     value: '5. CPH or SBI or FRN and Names & addresses must be provided.'
   },
   {
+    color: 'FFFFFF',
     value:
       '6. Row 2 has been used to indicate the scheme type, however these comments must be removed prior to upload.'
   },
   {
+    color: 'FFFFFF',
     value:
       '7. Cells can be hidden if they do not relate to specific schemes, however they must be unhidden before emailing to the ICDT Inspectorate Master List Team.'
   },
   {
+    color: 'FFFFFF',
     value:
       '8. Headings may refer to SPS, however these may still required for BPS.'
   },
   {
+    color: 'FFFFFF',
     value:
-      '9. Refer to CPH areas covered by SEO Groups which can be found on the Guidance Hub at Operations > Compliance & Guidance > IMIS > Related docs'
+      '9. Refer to Annex One: Scheme Names and Codes to populate Column E. This can be found on the Guidance Hub at Operations > Compliance & Guidance > IMIS > Workbooks.'
+  },
+
+  {
+    color: 'FFFFFF',
+    value:
+      '10. Refer to CPH areas covered by SEO Groups which can be found on the Guidance Hub at Operations > Compliance & Guidance > IMIS > Related docs'
   },
   {
+    color: 'FFFFFF',
     value:
-      '10. Once complete email the template to the ICDT Inspectorate Master List shared mailbox at SM - RPA - ISU Inspectorate Master Lists via'
+      '11. Once complete email the template to the ICDT Inspectorate Master List shared mailbox at SM - RPA - ISU Inspectorate Master Lists via'
+  },
+  {
+    color: 'FFFFFF',
+    value: 'LIMTInspectorate.MasterLists@rpa.gov.uk',
+    hyperlink: 'http://www.google.com'
   }
 ]

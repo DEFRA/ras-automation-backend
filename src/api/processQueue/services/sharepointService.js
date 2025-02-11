@@ -29,14 +29,20 @@ export const fetchFileContent = async (filePath) => {
 
 export const uploadFileToSharePoint = async (filePath, transformedBuffer) => {
   const accessToken = await getAccessToken()
-  const url = `${baseUrl}/${siteId}/drives/${driveId}/root:${filePath}:/content`
+  const url = `${baseUrl}/sites/${siteId}/drives/${driveId}/root:${filePath}:/content`
+
   try {
-    await axios.post(url, transformedBuffer, {
+    const response = await axios.put(url, {
       headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/octet-stream'
+      },
+      transformedBuffer
     })
-    logger.log('Transformed file uploaded to sharepoint successfully.')
+    logger.log(
+      'Transformed file uploaded to sharepoint successfully.',
+      response.data
+    )
   } catch (error) {
     logger.error('Error uploading file', error.message)
     throw error

@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs'
+import fs from 'fs'
 import {
   IMISHeaderConfig,
   headerNotes,
@@ -6,6 +7,8 @@ import {
   rowColors
 } from '~/src/api/processQueue/config/imisheader.js'
 import { getMappingDataForExcel } from '~/src/api/processQueue/utils/mappingData.js'
+import { applyValidationBasedOnHeaderColor } from '~/src/api/processQueue/utils/validations.js'
+import { uploadFileToSharePoint } from '~/src/api/processQueue/services/sharepointService.js'
 
 export const transformExcelData = async (response) => {
   const workbook = new ExcelJS.Workbook()
@@ -17,7 +20,11 @@ export const transformExcelData = async (response) => {
   rowColors.map((row, index) => {
     const eachRow = worksheet1.getRow(index + 2)
     eachRow.getCell(1).value = `${row.value}`
-    eachRow.getCell(1).fgColor = `${row.color}`
+    eachRow.getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: `${row.color}` }
+    }
   })
 
   worksheet1.columns = headersFirstTab.map((col) => ({
@@ -91,36 +98,14 @@ export const transformExcelData = async (response) => {
     to: { row: 1, column: headers.length }
   }
 
-  const applyValidationsBasedonFirstRowColors = () => {
-    for (let col = 1; col <= 3; col++) {
-      const firstRowCell = worksheet.getCell(1, col)
-      const color = firstRowCell.fill.fgColor.argb
-      // Apply data validations  based on color of first row cell
-      let validationFormula = ''
-      let validationMessage = ''
-      if (color === '0000FF') {
-        validationFormula = 'AND(ISNUMBER(A2), A2>=1, A2<=5'
-        validationMessage = 'Please enter a number between 1 and 5'
-      }
+  // Apply validation based on header color
+  applyValidationBasedOnHeaderColor(worksheet)
 
-      if (validationFormula) {
-        worksheet.getColumn(col).eachCell((cell, rowNumber) => {
-          if (rowNumber > 1) {
-            cell.dataValidation = {
-              type: 'custom',
-              formula1: validationFormula,
-              showErrorMessage: true,
-              errorTitle: 'Invalid Input',
-              error: validationMessage
-            }
-          }
-        })
-      }
-    }
-  }
+  const buffer = await workbook.xlsx.writeBuffer()
 
-  applyValidationsBasedonFirstRowColors()
+  // Save the Excel file locally to test
+  fs.writeFileSync('IMIS-TEMPLATE.xlsx', buffer)
 
-  // Save the Excel file
-  await workbook.xlsx.writeFile('IMIS-TEMPLATE.xlsx')
+  // Upload transformed content back to sharepoint
+  await uploadFileToSharePoint('/Selection/FETF/IMIS-TEMPLATE.xlsx', buffer)
 }
