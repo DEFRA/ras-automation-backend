@@ -2,6 +2,7 @@ import axios from 'axios'
 import { getAccessToken } from '~/src/api/processQueue/services/msalService.js'
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 import { config } from '~/src/config/index.js'
+import { proxyFetch } from '~/src/helpers/proxy-fetch.js'
 
 const baseUrl = 'https://graph.microsoft.com/v1.0'
 const logger = createLogger()
@@ -13,13 +14,15 @@ export const fetchFileContent = async (filePath) => {
   const url = `${baseUrl}/sites/${siteId}/drives/${driveId}/root:${filePath}:/content`
 
   try {
-    const response = await axios.get(url, {
+    const response = await proxyFetch(url, {
+      method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`
       },
       responseType: 'arraybuffer'
     })
-
+    logger.info('URL to be called to fetch file', url)
+    logger.info('Response status', response.status)
     return response.data
   } catch (error) {
     logger.error('Error fetching updated file:', error)
