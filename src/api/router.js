@@ -1,5 +1,6 @@
 import { health } from '~/src/api/health/index.js'
 import { processQueue } from '~/src/api/processQueue/index.js'
+import { webHook } from './webhook/index.js'
 
 /**
  * @satisfies { import('@hapi/hapi').ServerRegisterPluginObject<*> }
@@ -13,6 +14,7 @@ const router = {
 
       // Application specific routes, add your own routes here.
       await server.register([processQueue])
+      await server.register([webHook])
     }
   }
 }
