@@ -1,44 +1,79 @@
 import axios from 'axios'
-import AWS from 'aws-sdk'
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 import { config } from '~/src/config/index.js'
+import qs from 'qs'
+import { queueUrl, sqs } from '~/src/api/processQueue/config/awsConfig.js'
 
-const awsRegion = config.get('awsRegion')
 const awsAccessKeyId = config.get('awsAccessKeyId')
 const awsSecretAccessKey = config.get('awsSecretAccessKey')
-const awsGatewayEndPoint = config.get('awsGatewayEndPoint')
+const awsTokenURL = config.get('awsTokenURL')
+const logger = createLogger()
 
-export const setupAws = () => {
-  AWS.config.update({
-    region: awsRegion,
-    credentials: new AWS.Credentials(awsAccessKeyId, awsSecretAccessKey)
+export const getAWSToken = async () => {
+  const requestData = qs.stringify({
+    grant_type: 'client_credentials',
+    client_id: awsAccessKeyId,
+    client_secret: awsSecretAccessKey,
+    scope: 'ras-automation-backend-resource-srv/access'
+  })
+  const response = await axios.post(awsTokenURL, requestData, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
   })
 
-  // create a signer for the request
-  const signer = new AWS.Signers.V4(
-    new AWS.HttpRequest(process.env.API_GATEWAY_URL, awsRegion),
-    'execute-api'
-  )
-
-  signer.addAuthorization(AWS.config.credentials, new Date())
-
-  const request = new AWS.HttpRequest(awsGatewayEndPoint, awsRegion)
-
-  return request
+  return response.data.access_token
 }
 
-export const consumeMessages = async () => {
-  const logger = createLogger()
-  const request = setupAws()
+export const pushSqsMessage = async () => {
+  const accessToken = await getAWSToken()
+  const Url = config.get('awsGatewayEndPoint')
+  const data = {
+    message: 'test'
+  }
+  await axios.post(Url, data, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    }
+  })
+}
+
+export const getSqsMessages = async () => {
+  const params = {
+    QueueUrl:
+      'https://sqs.eu-west-2.amazonaws.com/332499610595/ras_automation_backend',
+    MaxNumberOfMessages: 10,
+    WaitTimeSeconds: 5,
+    VisibilityTimeout: 30
+  }
+  try {
+    const data = sqs.receiveMessage(params).promise()
+    if (data.Messages) {
+      for (const message of data.Messages) {
+        // Process message and trigger  internal endpoint
+        //  await triggerMicroService(message.Body)
+
+        // Delete message from SQS
+        await deleteMessage(message.ReceiptHandle)
+      }
+    } else {
+      return []
+    }
+  } catch (error) {
+    logger.error('Error consuming messages from SQS:', error)
+  }
+}
+
+export const deleteMessage = async (receiptHandle) => {
+  const params = {
+    QueueUrl: queueUrl,
+    ReceiptHandle: receiptHandle
+  }
 
   try {
-    const response = await axios.get(awsGatewayEndPoint, {
-      headers: request.headers
-    })
-
-    logger.log('Messages received from SQS:', response.data)
-    return response.data
+    await sqs.deleteMessage(params).promise()
   } catch (error) {
-    logger.error('Error consuming messages from SQS:', error.message)
+    logger.error('Error deleting message:', error)
   }
 }

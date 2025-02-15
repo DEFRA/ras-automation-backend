@@ -9,7 +9,11 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
     // use stream reader for large files
     //  const readStream = fs.readFileSync(sourceFile)
 
-    const buffer = Buffer.from(sourceFile[3])
+    const buffer = Buffer.from(
+      sourceFile.find(
+        (file) => file.fileName === 'giles_report_official_sensitive_2b.xlsb'
+      ).data
+    )
 
     const workbookXLSX = read(buffer, { type: 'buffer' })
 
@@ -69,28 +73,37 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
     }
 
     const CPH_CODE = await loadExcelToMap(
-      sourceFile[0],
+      sourceFile.find((file) => file.fileName === 'SBI_FRN_CPH.xlsx').data,
       'SBI',
       ['CPH_CODE'],
       'FRN_CPH_SBI'
     )
 
     const LMT_CORE = await loadExcelToMap(
-      sourceFile[1],
+      sourceFile.find(
+        (file) =>
+          file.fileName === 'CPH_SEO_Group_Look_Up_Table_V4_23.01.2025.xlsx'
+      ).data,
       'Enter CPH data in this column',
       ['SEO Group'],
       'CPH to SEO group Match'
     )
 
     const SEO_GROUP = await loadExcelToMap(
-      sourceFile[1],
+      sourceFile.find(
+        (file) =>
+          file.fileName === 'CPH_SEO_Group_Look_Up_Table_V4_23.01.2025.xlsx'
+      ).data,
       'County',
       ['SEOGroup'],
       'CPH to SEO group Match'
     )
 
     const SEO_GROUP_SHORE_SPLIT = await loadExcelToMap(
-      sourceFile[1],
+      sourceFile.find(
+        (file) =>
+          file.fileName === 'CPH_SEO_Group_Look_Up_Table_V4_23.01.2025.xlsx'
+      ).data,
       'County & Parish Number',
       ['AREA'],
       '35 Shropshire Split'
@@ -108,14 +121,16 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
     }
 
     const PHONE_NO = await loadExcelToMap(
-      sourceFile[4],
+      sourceFile.find((file) => file.fileName === 'CS_MEASURES.xlsb').data,
       'SBI',
       ['LANDLINE', 'MOBILE', 'FRN'],
       'CS_MEASURES'
     )
 
     const CLAIM_VALUE_DOSSIER = await loadExcelToMap(
-      sourceFile[2],
+      sourceFile.find(
+        (file) => file.fileName === 'giles_report_official_sensitive_1.xlsb'
+      ).data,
       'Project Ref',
       ['Forecast claim (grant) value', 'Sub Scheme'],
       'giles_report_official_sensitive',
