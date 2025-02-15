@@ -1,9 +1,15 @@
 import AWS from 'aws-sdk'
+import { config } from '~/src/config/index.js'
+
+// Retrieve config for AWS Authentication
+const awsRegion = config.get('azTenantId')
+const awsAccessId = config.get('awsAccessKeyId')
+const awsSecretKey = config.get('awsSecretAccessKey')
 
 AWS.config.update({
-  region: 'eu-west-2',
-  accessKeyId: '4nqsrasj4qi6gm2vielmq8t1pg',
-  secretAccessKey: '2rll2p5jeo49nghj32at1k3bhp3vdnk7s1m5cptnb0p6csurkus'
+  region: awsRegion,
+  accessKeyId: awsAccessId,
+  secretAccessKey: awsSecretKey
 })
 
 export const sqs = new AWS.SQS()
