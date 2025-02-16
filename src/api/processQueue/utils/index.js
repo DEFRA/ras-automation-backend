@@ -1,6 +1,5 @@
 import ExcelJS from 'exceljs'
 import fs from 'fs'
-import { Readable } from 'stream'
 
 export const getColumnValues = async (excelFile, columnNumber) => {
   const workbook = new ExcelJS.Workbook()
