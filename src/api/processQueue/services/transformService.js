@@ -1,5 +1,4 @@
 import ExcelJS from 'exceljs'
-import fs from 'fs'
 import {
   IMISHeaderConfig,
   headerNotes,
@@ -9,8 +8,14 @@ import {
 import { getMappingDataForExcel } from '~/src/api/processQueue/utils/mappingData.js'
 import { applyValidationBasedOnHeaderColor } from '~/src/api/processQueue/utils/validations.js'
 import { uploadFileToSharePoint } from '~/src/api/processQueue/services/sharepointService.js'
+import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
+
+const logger = createLogger()
 
 export const transformExcelData = async (response) => {
+  logger.info(
+    'Inputs received from controller to process the template creation'
+  )
   const workbook = new ExcelJS.Workbook()
   const worksheet1 = workbook.addWorksheet('Notes')
   const worksheet = workbook.addWorksheet('Inspections')
@@ -103,8 +108,10 @@ export const transformExcelData = async (response) => {
 
   const buffer = await workbook.xlsx.writeBuffer()
 
+  logger.info('Buffer is ready  to process the template creation')
+
   // Save the Excel file locally to test
-  fs.writeFileSync('IMIS-TEMPLATE.xlsx', buffer)
+  // fs.writeFileSync('IMIS-TEMPLATE.xlsx', buffer)
 
   // Upload transformed content back to sharepoint
   await uploadFileToSharePoint('/Selection/FETF/IMIS-TEMPLATE.xlsx', buffer)
