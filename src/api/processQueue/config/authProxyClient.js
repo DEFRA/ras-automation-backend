@@ -18,9 +18,8 @@ const logger = createLogger()
  */
 const sendGetRequestAsync = async (url, options) => {
   try {
-    logger.info('URL to be called to fetch token', url)
     const response = await proxyFetch(url, options)
-    logger.info('Response to fetch token', url, response)
+    logger.info('Response to fetch token successfully')
     return await handleResponse(response)
   } catch (error) {
     logger.error(`GET request failed: ${error.message}`)
@@ -37,12 +36,11 @@ const sendGetRequestAsync = async (url, options) => {
  */
 const sendPostRequestAsync = async (url, options) => {
   try {
-    logger.info('URL to be called to fetch token', url)
     const response = await proxyFetch(url, {
       ...options,
       method: 'POST'
     })
-    logger.info('Response to fetch token', url, response)
+    logger.info('Response to fetch token fetch successfully')
     return await handleResponse(response)
   } catch (error) {
     logger.error(`POST request failed: ${error.message}`)

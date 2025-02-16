@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs'
 import fs from 'fs'
+import { Readable } from 'stream'
 
 export const getColumnValues = async (excelFile, columnNumber) => {
   const workbook = new ExcelJS.Workbook()
@@ -24,4 +25,12 @@ export const cleanNumberField = (value) => {
 
 export const saveToLocalFile = (response) => {
   fs.writeFileSync('output.xlsb', Buffer.from(response.data))
+}
+
+export const streamToBuffer = async (stream) => {
+  const chunks = []
+  for await (const chunk of stream) {
+    chunks.push(chunk)
+  }
+  return Buffer.concat(chunks)
 }
