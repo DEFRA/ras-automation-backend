@@ -12,9 +12,6 @@ const nonProxyFetch = (url, opts) => {
 
 const proxyFetch = (url, opts, skipProxy = false) => {
   const proxy = config.get('httpsProxy') ?? config.get('httpProxy')
-  logger.info('proxy', proxy)
-  logger.info('httpProxy', config.get('httpProxy'))
-  logger.info('httpsProxy', config.get('httpsProxy'))
   if (!proxy || skipProxy) {
     return nonProxyFetch(url, opts)
   } else {

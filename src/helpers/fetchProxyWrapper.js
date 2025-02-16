@@ -22,7 +22,7 @@ const handleResponse = async (response) => {
   })
   if (response.status >= 200 && response.status < 300) {
     return {
-      body: await response.text(),
+      body: await response.json(),
       headers,
       status: response.status
     }

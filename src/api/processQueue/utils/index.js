@@ -25,3 +25,11 @@ export const cleanNumberField = (value) => {
 export const saveToLocalFile = (response) => {
   fs.writeFileSync('output.xlsb', Buffer.from(response.data))
 }
+
+export const streamToBuffer = async (stream) => {
+  const chunks = []
+  for await (const chunk of stream) {
+    chunks.push(chunk)
+  }
+  return Buffer.concat(chunks)
+}

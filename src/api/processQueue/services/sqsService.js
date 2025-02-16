@@ -1,43 +1,7 @@
-import axios from 'axios'
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
-import { config } from '~/src/config/index.js'
-import qs from 'qs'
 import { queueUrl, sqs } from '~/src/api/processQueue/config/awsConfig.js'
 
-const awsAccessKeyId = config.get('awsAccessKeyId')
-const awsSecretAccessKey = config.get('awsSecretAccessKey')
-const awsTokenURL = config.get('awsTokenURL')
 const logger = createLogger()
-
-export const getAWSToken = async () => {
-  const requestData = qs.stringify({
-    grant_type: 'client_credentials',
-    client_id: awsAccessKeyId,
-    client_secret: awsSecretAccessKey,
-    scope: 'ras-automation-backend-resource-srv/access'
-  })
-  const response = await axios.post(awsTokenURL, requestData, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
-
-  return response.data.access_token
-}
-
-export const pushSqsMessage = async () => {
-  const accessToken = await getAWSToken()
-  const Url = config.get('awsGatewayEndPoint')
-  const data = {
-    message: 'test'
-  }
-  await axios.post(Url, data, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    }
-  })
-}
 
 export const getSqsMessages = async () => {
   const params = {

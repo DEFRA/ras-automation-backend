@@ -1,8 +1,8 @@
-import axios from 'axios'
 import { getAccessToken } from '~/src/api/processQueue/services/msalService.js'
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 import { config } from '~/src/config/index.js'
 import { proxyFetch } from '~/src/helpers/proxy-fetch.js'
+import { streamToBuffer } from '../utils/index.js'
 
 const baseUrl = 'https://graph.microsoft.com/v1.0'
 const logger = createLogger()
@@ -12,18 +12,19 @@ const driveId = config.get('sharePointDriveId')
 export const fetchFileContent = async (filePath) => {
   const accessToken = await getAccessToken()
   const url = `${baseUrl}/sites/${siteId}/drives/${driveId}/root:${filePath}:/content`
+  const options = {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    },
+    responseType: 'arraybuffer'
+  }
 
   try {
-    const response = await proxyFetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      },
-      responseType: 'arraybuffer'
-    })
-    logger.info('URL to be called to fetch file', url)
-    logger.info('Response status', response.status)
-    return response.data
+    const response = await proxyFetch(url, options)
+    logger.info('Response got successfully for file content from sharepoint')
+    const buffer = await streamToBuffer(response.body)
+    return buffer
   } catch (error) {
     logger.error('Error fetching updated file:', error)
     throw error
@@ -33,18 +34,21 @@ export const fetchFileContent = async (filePath) => {
 export const uploadFileToSharePoint = async (filePath, transformedBuffer) => {
   const accessToken = await getAccessToken()
   const url = `${baseUrl}/sites/${siteId}/drives/${driveId}/root:${filePath}:/content`
+  const options = {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/octet-stream',
+      Accept: 'application/json'
+    },
+    body: transformedBuffer
+  }
 
   try {
-    const response = await axios.put(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/octet-stream'
-      },
-      transformedBuffer
-    })
-    logger.log(
+    const response = await proxyFetch(url, options)
+    logger.info(
       'Transformed file uploaded to sharepoint successfully.',
-      response.data
+      response
     )
   } catch (error) {
     logger.error('Error uploading file', error.message)
