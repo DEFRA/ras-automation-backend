@@ -24,6 +24,7 @@ export const fetchFileContent = async (filePath) => {
     const response = await proxyFetch(url, options)
     logger.info('Response got successfully for file content from sharepoint')
     const buffer = await streamToBuffer(response.body)
+    logger.info('Stream is ready to be processed')
     return buffer
   } catch (error) {
     logger.error('Error fetching updated file:', error)
@@ -32,6 +33,7 @@ export const fetchFileContent = async (filePath) => {
 }
 
 export const uploadFileToSharePoint = async (filePath, transformedBuffer) => {
+  logger.info('Entered into upload to sharepoint component')
   const accessToken = await getAccessToken()
   const url = `${baseUrl}/sites/${siteId}/drives/${driveId}/root:${filePath}:/content`
   const options = {
