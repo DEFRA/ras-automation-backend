@@ -153,6 +153,12 @@ const config = convict({
     default: '',
     env: 'AWS_GATEWAY_ENDPOINT'
   },
+  awsTokenURL: {
+    doc: 'AWS Token EndPoint',
+    format: String,
+    default: '',
+    env: 'AWS_TOKEN_ENDPOINT'
+  },
   sharePointSiteId: {
     doc: 'Sharepoint Site Id',
     format: String,
