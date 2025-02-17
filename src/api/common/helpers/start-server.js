@@ -3,6 +3,10 @@ import { createServer } from '../../../api/index.js'
 import { createLogger } from '../../../api/common/helpers/logging/logger.js'
 import { fetchFileContent } from '../../processQueue/services/sharepointService.js'
 import { queueInitialInfo, messages } from '../constants/queue-initial-data.js'
+import { fetchFileInfo } from '../../common/services/getFiles.js'
+import { sharePointFileinfo } from '../../common/helpers/file-info.js'
+
+let sharePointFile
 
 async function startServer() {
   let server
@@ -17,19 +21,18 @@ async function startServer() {
       `Access your backend on http://localhost:${config.get('port')}`
     )
 
+    const fileInfo = await fetchFileInfo()
+    sharePointFile = sharePointFileinfo(fileInfo)
+
     for (const message of messages) {
       const { filePath, fileName } = message
 
-      try {
-        // Fetch file content from SharePoint
-        const fileContent = await fetchFileContent(filePath)
-        const match = queueInitialInfo.find(
-          (file) => file.fileName === fileName
-        )
-        match.data = fileContent
-      } catch (error) {
-        logger.error('Error processing message:', error.message)
-      }
+      // Fetch file content from SharePoint
+      const fileContent = await fetchFileContent(filePath)
+      const mappedFile = queueInitialInfo.find(
+        (file) => file.fileName === fileName
+      )
+      mappedFile.data = fileContent
     }
   } catch (error) {
     logger.info('Server failed to start :(')
@@ -39,4 +42,4 @@ async function startServer() {
   return server
 }
 
-export { startServer, queueInitialInfo }
+export { startServer, queueInitialInfo, sharePointFile }
