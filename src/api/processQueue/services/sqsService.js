@@ -5,6 +5,7 @@ import qs from 'qs'
 import { proxyFetch } from '~/src/helpers/proxy-fetch.js'
 import { transformExcelData } from './transformService.js'
 import { queueInitialInfo } from '~/src/api/common/constants/queue-initial-data.js'
+import { transformDataForSQS } from '../utils/index.js'
 
 const logger = createLogger()
 const awsAccessKeyId = config.get('awsAccessKeyId')
@@ -20,7 +21,7 @@ export const getSqsMessages = async () => {
     VisibilityTimeout: 30
   }
   try {
-    const data = sqs.receiveMessage(params).promise()
+    const data = await sqs.receiveMessage(params).promise()
     if (data.Messages) {
       for (const message of data.Messages) {
         // Process message and trigger  internal endpoint
@@ -71,6 +72,7 @@ export const getAWSToken = async () => {
 }
 
 export const pushSqsMessage = async (data) => {
+  const formattedMsgs = transformDataForSQS(data)
   const accessToken = await getAWSToken()
   const Url = config.get('awsGatewayEndPoint')
   const options = {
@@ -79,7 +81,7 @@ export const pushSqsMessage = async (data) => {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json'
     },
-    data
+    formattedMsgs
   }
 
   proxyFetch(Url, options)

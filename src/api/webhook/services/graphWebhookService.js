@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { getAccessToken } from '~/src/api/processQueue/services/msalService.js'
 import { config } from '~/src/config/index.js'
-import { createLogger } from '~/src/helpers/logging/logger-options.js'
+import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 
 const logger = createLogger()
 
@@ -13,11 +13,12 @@ const createSubscription = async () => {
 
   const body = {
     changeType: 'updated',
-    notificationUrl: 'https://cce2-77-101-21-114.ngrok-free.app/api/webhook',
+    notificationUrl: 'https://f6e9-77-101-21-114.ngrok-free.app/api/webhook',
     resource: `/sites/${siteId}/drive/${driveId}/root`,
     expirationDateTime: '2025-02-20T18:23:45.9356913Z',
     clientState: 'secretClientValue',
-    latestSupportedTlsVersion: 'v1_2'
+    latestSupportedTlsVersion: 'v1_2',
+    eventTypes: ['ItemUpdated']
   }
 
   try {
