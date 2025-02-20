@@ -21,6 +21,8 @@ async function startServer() {
       `Access your backend on http://localhost:${config.get('port')}`
     )
 
+    //  await createSubscription()
+
     const fileInfo = await fetchFileInfo()
     sharePointFile = sharePointFileinfo(fileInfo)
 

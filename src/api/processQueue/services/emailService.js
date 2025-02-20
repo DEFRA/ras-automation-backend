@@ -14,23 +14,14 @@ export const sendEmails = async () => {
   ]
 
   for (const user of users) {
-    // eslint-disable-next-line no-console
-    console.log(
-      'notifyClient',
-      notifyClient.sendEmail,
-      TEMPLATE_ID,
-      user.email,
-      user.name
-    )
     try {
-      const response = await notifyClient.sendEmail(TEMPLATE_ID, user.email, {
+      await notifyClient.sendEmail(TEMPLATE_ID, user.email, {
         personalisation: {
           name: user.name
         }
       })
 
-      // eslint-disable-next-line no-console
-      console.log(`Email sent successfully to : ${user.email}`, response)
+      logger.info(`Email sent successfully to : ${user.email}`)
     } catch (error) {
       logger.error(error)
     }

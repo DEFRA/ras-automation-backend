@@ -12,6 +12,10 @@ export const webHookController = {
   handler: async (_request, h) => {
     const validationToken = _request.query.validationToken
 
+    if (validationToken) {
+      return h.response(validationToken).type('text/plain').code(200)
+    }
+
     const eventId = _request.payload.value[0].clientState
 
     const data = await fetchFileInfo()
@@ -28,10 +32,6 @@ export const webHookController = {
       return h
         .response({ message: 'Notification ignored: Already processed' })
         .code(200)
-
-    if (validationToken) {
-      return h.response(validationToken).type('text/plain').code(200)
-    }
 
     GlobalStore.eventCache.set(eventId, result)
 

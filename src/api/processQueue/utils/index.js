@@ -19,7 +19,7 @@ export const getColumnValues = async (excelFile, columnNumber) => {
 }
 
 export const cleanNumberField = (value) => {
-  if (value) return parseFloat(value.replace(/[^0-9.]/g, ''))
+  if (value) return value
 }
 
 export const saveToLocalFile = (response) => {
@@ -32,4 +32,30 @@ export const streamToBuffer = async (stream) => {
     chunks.push(chunk)
   }
   return Buffer.concat(chunks)
+}
+
+export const transformDataForSQS = (messages) => {
+  messages.map(
+    (msg) => `ID: ${msg.id}, FileName: ${msg.name}, FilePath: ${msg.filePath}`
+  )
+}
+
+export const validateDateFormat = (cellValue) => {
+  const dateRegex = /^\d{2}\/d{2}\/\d{4}$/
+  if (!dateRegex.test(cellValue)) {
+    return false
+  }
+
+  const [day, month, year] = cellValue.split('/')
+  const date = new Date(`${year}-${month}-${day}`)
+  return !isNaN(date.getTime())
+}
+
+export const styleToHighlight = () => {
+  return {
+    top: { style: 'thin', color: { argb: 'FFFF00' } },
+    left: { style: 'thin', color: { argb: 'FFFF00' } },
+    bottom: { style: 'thin', color: { argb: 'FFFF00' } },
+    right: { style: 'thin', color: { argb: 'FFFF00' } }
+  }
 }

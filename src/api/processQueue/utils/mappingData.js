@@ -1,8 +1,13 @@
 import ExcelJS from 'exceljs'
 import { loadExcelToMap } from '~/src/api/processQueue/utils/loadExcelToMap.js'
 import { read, write } from 'xlsx'
+import { cleanNumberField } from '../utils/index.js'
 
-export const getMappingDataForExcel = async (sourceFile, columnName) => {
+export const getMappingDataForExcel = async (
+  sourceFile,
+  columnName,
+  targetProjectIds
+) => {
   try {
     const workbook = new ExcelJS.Workbook()
 
@@ -32,9 +37,9 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
       (value) => value === columnName
     )
 
-    const getBusinessNameIndex = headerRow.values.findIndex(
-      (value) => value === 'Business Name'
-    )
+    // const getBusinessNameIndex = headerRow.values.findIndex(
+    //   (value) => value === 'Business Name'
+    // )
 
     const getSBIIndex = headerRow.values.findIndex(
       (value) => value === 'Single Business Identifier (SBI)'
@@ -42,10 +47,6 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
 
     const getAddressCore4 = headerRow.values.findIndex(
       (value) => value === 'County'
-    )
-
-    const getPostCodeCore = headerRow.values.findIndex(
-      (value) => value === 'Postcode'
     )
 
     const mappedObject = []
@@ -67,9 +68,13 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
       NoOfAgreementsRDP: 1,
       totalFieldsRDP: 0,
       lifetimeValueRDP: null,
+      addressCore1: null,
+      addressCore2: null,
+      addressCore3: null,
       addressCore4: null,
       postCodeCore: null,
-      selectionBasisRDP: null
+      selectionBasisRDP: null,
+      preInspectionDate: null
     }
 
     const CPH_CODE = await loadExcelToMap(
@@ -123,7 +128,16 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
     const PHONE_NO = await loadExcelToMap(
       sourceFile.find((file) => file.fileName === 'CS_MEASURES.xlsb').data,
       'SBI',
-      ['LANDLINE', 'MOBILE', 'FRN'],
+      [
+        'LANDLINE',
+        'MOBILE',
+        'FRN',
+        'POST_CODE',
+        'ORGANISATION_NAME',
+        'ADDRESS_LINE1',
+        'ADDRESS_LINE2',
+        'CITY'
+      ],
       'CS_MEASURES'
     )
 
@@ -146,15 +160,16 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
     for (const row of worksheet._rows) {
       if (row) {
         if (row.number > 4) {
-          // Data that needs to be populate in each row
-          mappedObject.push({
-            ...obj,
-            SBICore: row.getCell(getSBIIndex).value,
-            CPHCore:
-              CPH_CODE?.get(row.getCell(getSBIIndex).value.toString())
-                ?.CPH_CODE || null,
-            limtCore:
-              LMT_CORE_CONVERSION(
+          const projectId = row.getCell(columnIndex).value
+          if (targetProjectIds.includes(projectId)) {
+            // Data that needs to be populate in each row
+            mappedObject.push({
+              ...obj,
+              SBICore: row.getCell(getSBIIndex).value || null,
+              CPHCore:
+                CPH_CODE?.get(row.getCell(getSBIIndex).value.toString())
+                  ?.CPH_CODE || null,
+              limtCore: LMT_CORE_CONVERSION(
                 LMT_CORE?.get(
                   CPH_CODE.get(row.getCell(getSBIIndex).value.toString())
                     ?.CPH_CODE
@@ -162,35 +177,58 @@ export const getMappingDataForExcel = async (sourceFile, columnName) => {
                 CPH_CODE.get(row.getCell(getSBIIndex).value.toString())
                   ?.CPH_CODE,
                 row.getCell(getAddressCore4).value
-              ) ?? null,
-            FRNCore: PHONE_NO.get(row.getCell(getSBIIndex).value)?.FRN || null,
-            phoneNoCore: PHONE_NO.get(row.getCell(getSBIIndex).value)?.LANDLINE,
-            mobileCore: PHONE_NO.get(row.getCell(getSBIIndex).value)?.MOBILE,
-            customerNameCore: row.getCell(getBusinessNameIndex)?.value,
-            claimValueDossier:
-              CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
-                'Forecast claim (grant) value'
-              ] || null,
-            agreementRefCore: row.getCell(columnIndex)?.value,
-            highValueCore:
-              CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value) > 50000
-                ? 'Y'
-                : 'N',
-            lifetimeValueRDP: CLAIM_VALUE_DOSSIER.get(
-              row.getCell(columnIndex).value
-            )?.['Forecast claim (grant) value'],
-            addressCore4: row.getCell(getAddressCore4).value,
-            postCodeCore: row.getCell(getPostCodeCore).value,
-            selectionBasisRDP:
-              selectionBasisRDPConversion[
+              ),
+              FRNCore:
+                PHONE_NO.get(row.getCell(getSBIIndex).value)?.FRN || null,
+              phoneNoCore:
+                cleanNumberField(
+                  PHONE_NO.get(row.getCell(getSBIIndex).value)?.LANDLINE
+                ) ?? null,
+              mobileCore:
+                cleanNumberField(
+                  PHONE_NO.get(row.getCell(getSBIIndex).value)?.MOBILE
+                ) || null,
+              customerNameCore:
+                PHONE_NO.get(row.getCell(getSBIIndex).value)
+                  ?.ORGANISATION_NAME || null,
+              lifetimeValueRDP:
                 CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
-                  'Sub Scheme'
-                ]
-              ] ||
-              CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
-                'Sub Scheme'
-              ]
-          })
+                  'Forecast claim (grant) value'
+                ] ?? null,
+              agreementRefCore: row.getCell(columnIndex)?.value ?? null,
+              highValueCore:
+                CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
+                  'Forecast claim (grant) value'
+                ] > 50000
+                  ? 'Y'
+                  : 'N',
+              claimValueDossier:
+                CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
+                  'Forecast claim (grant) value'
+                ] ?? null,
+              addressCore1:
+                PHONE_NO.get(row.getCell(getSBIIndex).value)?.ADDRESS_LINE1 ||
+                null,
+              addressCore2:
+                PHONE_NO.get(row.getCell(getSBIIndex).value)?.ADDRESS_LINE2 ||
+                null,
+              addressCore3:
+                PHONE_NO.get(row.getCell(getSBIIndex).value)?.CITY || null,
+              addressCore4: row.getCell(getAddressCore4).value ?? null,
+              postCodeCore:
+                PHONE_NO.get(row.getCell(getSBIIndex).value)?.POST_CODE ?? null,
+              selectionBasisRDP:
+                (selectionBasisRDPConversion[
+                  CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
+                    'Sub Scheme'
+                  ]
+                ] ||
+                  CLAIM_VALUE_DOSSIER.get(row.getCell(columnIndex).value)?.[
+                    'Sub Scheme'
+                  ]) ??
+                null
+            })
+          }
         }
       }
     }

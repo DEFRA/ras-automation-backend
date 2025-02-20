@@ -5,10 +5,12 @@ import {
   headersFirstTab,
   rowColors
 } from '~/src/api/processQueue/config/imisheader.js'
+import { loadColumnNamesByName } from '~/src/api/processQueue/utils/loadColumnValuesByName.js'
 import { getMappingDataForExcel } from '~/src/api/processQueue/utils/mappingData.js'
 import { applyValidationBasedOnHeaderColor } from '~/src/api/processQueue/utils/validations.js'
 import { uploadFileToSharePoint } from '~/src/api/processQueue/services/sharepointService.js'
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
+import fs from 'fs'
 
 const logger = createLogger()
 
@@ -56,7 +58,18 @@ export const transformExcelData = async (response) => {
     width: col.width
   }))
 
-  const data = await getMappingDataForExcel(response, 'Project Ref')
+  const targetProjectIds = await loadColumnNamesByName(
+    'Selection_Working_Doc.xlsx',
+    'Selected',
+    'Project Ref',
+    'Combine Removed Duplicates'
+  )
+
+  const data = await getMappingDataForExcel(
+    response,
+    'Project Ref',
+    targetProjectIds
+  )
 
   data.forEach((rowData) => {
     worksheet.addRow(rowData)
@@ -95,6 +108,8 @@ export const transformExcelData = async (response) => {
       vertical: 'top',
       horizontal: 'center'
     }
+
+    if (col.note) cell.note = col?.note
   })
 
   // Enable filters on all columns
@@ -104,15 +119,15 @@ export const transformExcelData = async (response) => {
   }
 
   // Apply validation based on header color
-  applyValidationBasedOnHeaderColor(worksheet)
+  applyValidationBasedOnHeaderColor(worksheet, headers)
 
   const buffer = await workbook.xlsx.writeBuffer()
 
   logger.info('Buffer is ready  to process the template creation')
 
   // Save the Excel file locally to test
-  // fs.writeFileSync('IMIS-TEMPLATE.xlsx', buffer)
+  fs.writeFileSync('IMIS-TEMPLATE.xlsx', buffer)
 
   // Upload transformed content back to sharepoint
-  await uploadFileToSharePoint('/Selection/FETF/IMIS-TEMPLATE.xlsx', buffer)
+  await uploadFileToSharePoint('/IMIS Template/IMIS-TEMPLATE.xlsx', buffer)
 }
