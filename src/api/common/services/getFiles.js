@@ -20,7 +20,7 @@ export const fetchFileInfo = async () => {
   }
 
   try {
-    const response = await proxyFetch(url, options, true)
+    const response = await proxyFetch(url, options)
     logger.info('Got File Info from sharepoint')
     return response.json()
   } catch (error) {
