@@ -77,12 +77,12 @@ export const getMappingDataForExcel = async (
       preInspectionDate: null
     }
 
-    const CPH_CODE = await loadExcelToMap(
-      sourceFile.find((file) => file.fileName === 'SBI_FRN_CPH.xlsx').data,
-      'SBI',
-      ['CPH_CODE'],
-      'FRN_CPH_SBI'
-    )
+    // const CPH_CODE = await loadExcelToMap(
+    //   sourceFile.find((file) => file.fileName === 'SBI_FRN_CPH.xlsx').data,
+    //   'SBI',
+    //   ['CPH_CODE'],
+    //   'FRN_CPH_SBI'
+    // )
 
     const LMT_CORE = await loadExcelToMap(
       sourceFile.find(
@@ -133,6 +133,7 @@ export const getMappingDataForExcel = async (
         'MOBILE',
         'FRN',
         'POST_CODE',
+        'CPH_CODE',
         'ORGANISATION_NAME',
         'ADDRESS_LINE1',
         'ADDRESS_LINE2',
@@ -167,15 +168,12 @@ export const getMappingDataForExcel = async (
               ...obj,
               SBICore: row.getCell(getSBIIndex).value || null,
               CPHCore:
-                CPH_CODE?.get(row.getCell(getSBIIndex).value.toString())
-                  ?.CPH_CODE || null,
+                PHONE_NO.get(row.getCell(getSBIIndex).value)?.CPH_CODE || null,
               limtCore: LMT_CORE_CONVERSION(
                 LMT_CORE?.get(
-                  CPH_CODE.get(row.getCell(getSBIIndex).value.toString())
-                    ?.CPH_CODE
+                  PHONE_NO.get(row.getCell(getSBIIndex).value)?.CPH_CODE
                 )?.['SEO Group']?.result,
-                CPH_CODE.get(row.getCell(getSBIIndex).value.toString())
-                  ?.CPH_CODE,
+                PHONE_NO.get(row.getCell(getSBIIndex).value)?.CPH_CODE,
                 row.getCell(getAddressCore4).value
               ),
               FRNCore:

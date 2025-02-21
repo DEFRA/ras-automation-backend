@@ -11,6 +11,7 @@ let sharePointFile
 async function startServer() {
   let server
   const logger = createLogger()
+  // const POLLING_INTERVAL = 30000
 
   try {
     server = await createServer()
@@ -21,7 +22,12 @@ async function startServer() {
       `Access your backend on http://localhost:${config.get('port')}`
     )
 
-    //  await createSubscription()
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    // setInterval(async () => {
+    //   await checkFilesForTemplate()
+    // }, POLLING_INTERVAL)
+
+    // await createSubscription()
 
     const fileInfo = await fetchFileInfo()
     sharePointFile = sharePointFileinfo(fileInfo)
