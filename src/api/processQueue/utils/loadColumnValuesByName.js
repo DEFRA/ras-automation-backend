@@ -1,7 +1,8 @@
 import ExcelJS from 'exceljs'
+import { read, write } from 'xlsx'
 
 export const loadColumnNamesByName = async (
-  filePath = '',
+  sourceFile = '',
   keyColumnName = '',
   valueColumnName = '',
   workSheetName = '',
@@ -9,7 +10,17 @@ export const loadColumnNamesByName = async (
 ) => {
   const workbook = new ExcelJS.Workbook()
 
-  await workbook.xlsx.readFile(filePath)
+  const buffer = Buffer.from(
+    sourceFile.find(
+      (file) => file.fileName === 'FETF_FTF_Selection_Working _Doc.xlsx'
+    ).data
+  )
+
+  const workbookXLSX = read(buffer, { type: 'buffer' })
+
+  const xlsxBuffer = write(workbookXLSX, { bookType: 'xlsx', type: 'buffer' })
+
+  await workbook.xlsx.load(xlsxBuffer)
 
   const worksheet = workbook.getWorksheet(workSheetName)
 

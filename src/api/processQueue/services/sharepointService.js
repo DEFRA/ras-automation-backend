@@ -50,10 +50,35 @@ export const uploadFileToSharePoint = async (filePath, transformedBuffer) => {
     const response = await proxyFetch(url, options)
     logger.info(
       'Transformed file uploaded to sharepoint successfully.',
-      response
+      response.status
     )
   } catch (error) {
     logger.error('Error uploading file', error.message)
+    throw error
+  }
+}
+
+export const getSharePointFiles = async () => {
+  const accessToken = await getAccessToken()
+  const filePath = '/Selection/FETF'
+  const url = `${baseUrl}/sites/${siteId}/drives/${driveId}/root:/${filePath}:/children`
+  const options = {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  }
+
+  try {
+    const response = await proxyFetch(url, options)
+    if (!response.ok) {
+      logger.info('Failed to fetch files:', response.statusText)
+      return []
+    }
+    const data = await response.json()
+    return data.value.map((file) => file.name)
+  } catch (error) {
+    logger.error('Error fetching updated file:', error)
     throw error
   }
 }

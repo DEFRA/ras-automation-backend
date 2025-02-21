@@ -22,6 +22,7 @@ export const getSqsMessages = async () => {
   }
   try {
     const data = await sqs.receiveMessage(params).promise()
+    logger.info('messages in SQS queue', data.Messages)
     if (data.Messages) {
       for (const message of data.Messages) {
         // Process message and trigger  internal endpoint
@@ -86,7 +87,7 @@ export const pushSqsMessage = async (data) => {
 
   proxyFetch(Url, options)
     .then(async (res) => {
-      //   await getSqsMessages()
+      await getSqsMessages()
       await transformExcelData(queueInitialInfo)
       return res.data
     })

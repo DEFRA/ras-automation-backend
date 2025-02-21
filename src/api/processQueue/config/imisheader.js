@@ -268,6 +268,20 @@ Split address into 4 cols (T-W)
 Max 30 characters.`
   },
   {
+    header: 'Postcode - Core (If diff)',
+    key: 'postCodeDiffCore',
+    maxLength: 20,
+    width: 20,
+    color: '0000FF'
+  },
+  {
+    header: 'Phone no - Core (if diff)',
+    key: 'phoneCodeDiffCore',
+    maxLength: 20,
+    width: 20,
+    color: '0000FF'
+  },
+  {
     header: 'Number of animals to be inspected/records checked - Core',
     key: 'animalsInspected',
     width: 30,
@@ -957,6 +971,14 @@ max 20 characters.
   },
   {
     header: 'Number of sheep ONTO holding - SAG',
+    key: 'sheepONTOHoldingSAG',
+    width: 20,
+    color: '40E0D0',
+    note: `Houlston, Bridget J (RPA):
+Number between 01 Nov - 31 Oct`
+  },
+  {
+    header: 'Number of goats ONTO holding - SAG',
     key: 'sheepONTOHoldingSAG',
     width: 20,
     color: '40E0D0',

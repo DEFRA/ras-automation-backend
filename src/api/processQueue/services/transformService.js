@@ -59,7 +59,7 @@ export const transformExcelData = async (response) => {
   }))
 
   const targetProjectIds = await loadColumnNamesByName(
-    'Selection_Working_Doc.xlsx',
+    response,
     'Selected',
     'Project Ref',
     'Combine Removed Duplicates'
