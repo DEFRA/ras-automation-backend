@@ -6,6 +6,7 @@ import { proxyFetch } from '~/src/helpers/proxy-fetch.js'
 import { transformExcelData } from './transformService.js'
 import { queueInitialInfo } from '~/src/api/common/constants/queue-initial-data.js'
 import { transformDataForSQS } from '../utils/index.js'
+import { fetchFileContent } from './sharepointService.js'
 
 const logger = createLogger()
 const awsAccessKeyId = config.get('awsAccessKeyId')
@@ -25,8 +26,13 @@ export const getSqsMessages = async () => {
     logger.info('messages in SQS queue', data.Messages)
     if (data.Messages) {
       for (const message of data.Messages) {
-        // Process message and trigger  internal endpoint
-        //  await triggerMicroService(message.Body)
+        queueInitialInfo.map((record) => {
+          if (record.fileName === message.messageBody.fileName) {
+            record.data = fetchFileContent(record.filePath)
+          }
+          return record
+        })
+        await transformExcelData(queueInitialInfo)
         // Delete message from SQS
         await deleteMessage(message.ReceiptHandle)
       }
@@ -74,6 +80,12 @@ export const getAWSToken = async () => {
 
 export const pushSqsMessage = async (data) => {
   const formattedMsgs = transformDataForSQS(data)
+
+  const entries = formattedMsgs.map((message, index) => ({
+    Id: String(index),
+    MessageBody: message
+  }))
+
   const accessToken = await getAWSToken()
   const Url = config.get('awsGatewayEndPoint')
   const options = {
@@ -82,13 +94,12 @@ export const pushSqsMessage = async (data) => {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json'
     },
-    formattedMsgs
+    entries
   }
 
   proxyFetch(Url, options)
     .then(async (res) => {
       await getSqsMessages()
-      await transformExcelData(queueInitialInfo)
       return res.data
     })
     .catch((error) => {

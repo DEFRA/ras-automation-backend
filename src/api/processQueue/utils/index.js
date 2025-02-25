@@ -35,8 +35,8 @@ export const streamToBuffer = async (stream) => {
 }
 
 export const transformDataForSQS = (messages) => {
-  messages.map(
-    (msg) => `ID: ${msg.id}, FileName: ${msg.name}, FilePath: ${msg.filePath}`
+  return messages.map(
+    (msg) => `fileName: ${msg.name}, id: ${msg.id}, webUrl: ${msg.webUrl}`
   )
 }
 

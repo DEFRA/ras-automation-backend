@@ -12,7 +12,7 @@ export const loadColumnNamesByName = async (
 
   const buffer = Buffer.from(
     sourceFile.find(
-      (file) => file.fileName === 'FETF_FTF_Selection_Working _Doc.xlsx'
+      (file) => file.fileName === 'FETF_FTF_Selection_Working_Doc.xlsx'
     ).data
   )
 
