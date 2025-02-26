@@ -190,6 +190,12 @@ const config = convict({
     default: 'https://api.notifications.service.gov.uk/v2/notifications/email',
     env: 'GOV_EMAIL_SERVICE_END_POINT'
   },
+  clientState: {
+    doc: 'WebHook Client State',
+    format: String,
+    default: 'secretClientValue',
+    env: 'WEBHOOK_CLIENT_STATE'
+  },
   isSecureContextEnabled: {
     doc: 'Enable Secure Context',
     format: Boolean,

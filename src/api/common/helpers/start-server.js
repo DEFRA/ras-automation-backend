@@ -2,9 +2,10 @@ import { config } from '../../../config/index.js'
 import { createServer } from '../../../api/index.js'
 import { createLogger } from '../../../api/common/helpers/logging/logger.js'
 import { fetchFileContent } from '../../processQueue/services/sharepointService.js'
-import { queueInitialInfo, messages } from '../constants/queue-initial-data.js'
+import { queueInitialInfo } from '../constants/queue-initial-data.js'
 import { fetchFileInfo } from '../../common/services/getFiles.js'
 import { sharePointFileinfo } from '../../common/helpers/file-info.js'
+// import { getSubscriptionId } from '../../../api/common/db/data.js'
 
 let sharePointFile
 
@@ -16,37 +17,27 @@ async function startServer() {
   try {
     server = await createServer()
     await server.start()
-
     server.logger.info('Server started successfully')
     server.logger.info(
       `Access your backend on http://localhost:${config.get('port')}`
     )
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    // setInterval(async () => {
-    //   await checkFilesForTemplate()
-    // }, POLLING_INTERVAL)
-
-    // await createSubscription()
+    // await getSubscriptionId()
 
     const fileInfo = await fetchFileInfo()
     sharePointFile = sharePointFileinfo(fileInfo)
 
-    for (const message of messages) {
-      const { filePath, fileName } = message
+    for (const message of queueInitialInfo) {
+      const { filePath } = message
 
       // Fetch file content from SharePoint
       const fileContent = await fetchFileContent(filePath)
-      const mappedFile = queueInitialInfo.find(
-        (file) => file.fileName === fileName
-      )
-      mappedFile.data = fileContent
+      message.data = fileContent
     }
   } catch (error) {
     logger.info('Server failed to start :(')
     logger.error(error)
   }
-
   return server
 }
 
