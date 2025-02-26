@@ -105,9 +105,9 @@ export const pushSqsMessage = async (data) => {
   logger.info(`Options object pushing:, ${JSON.stringify(options)}`)
 
   proxyFetch(Url, options)
-    .then(async (res) => {
+    .then((res) => {
       logger.info('Got success from SQS Queue after pushing')
-      await getSqsMessages()
+      //   await getSqsMessages()
       return res.status
     })
     .catch((error) => {
