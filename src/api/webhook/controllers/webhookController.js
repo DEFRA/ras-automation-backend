@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { fetchFileInfo } from '../../common/services/getFiles.js'
+import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 import {
   filteredInfo,
   matchFile,
@@ -14,8 +15,11 @@ import { config } from '~/src/config/index.js'
 import _ from 'lodash'
 
 const CLIENT_STATE_WEBHOOK = config.get('clientState')
+const logger = createLogger()
+
 export const webHookController = {
   handler: async (_request, h) => {
+    logger.info('Request got from webhook microsoft')
     const validationToken = _request.query.validationToken
     if (validationToken) {
       return h.response(validationToken).type('text/plain').code(200)

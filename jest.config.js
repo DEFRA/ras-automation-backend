@@ -21,7 +21,9 @@ export default {
     '<rootDir>/src/api/processQueue',
     '<rootDir>/src/helpers',
     '<rootDir>/src/api/webhook',
-    '<rootDir>/src/api/common/helpers'
+    '<rootDir>/src/api/common/helpers',
+    '<rootDir>/src/api/common/db',
+    '<rootDir>/src/api/common/services'
   ],
   coverageDirectory: '<rootDir>/coverage',
   transform: {

@@ -5,7 +5,7 @@ import { fetchFileContent } from '../../processQueue/services/sharepointService.
 import { queueInitialInfo } from '../constants/queue-initial-data.js'
 import { fetchFileInfo } from '../../common/services/getFiles.js'
 import { sharePointFileinfo } from '../../common/helpers/file-info.js'
-import { getSubscriptionId } from '../../../api/common/db/data.js'
+// import { getSubscriptionId } from '../../../api/common/db/data.js'
 
 let sharePointFile
 
@@ -22,7 +22,7 @@ async function startServer() {
       `Access your backend on http://localhost:${config.get('port')}`
     )
 
-    await getSubscriptionId()
+    // await getSubscriptionId()
 
     const fileInfo = await fetchFileInfo()
     sharePointFile = sharePointFileinfo(fileInfo)
