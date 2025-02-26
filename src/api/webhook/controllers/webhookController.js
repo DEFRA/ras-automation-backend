@@ -11,10 +11,10 @@ import {
 import { REQUIRED_FILES } from '~/src/api/common/constants/queue-initial-data.js'
 import { pushSqsMessage } from '~/src/api/processQueue/services/sqsService.js'
 import GlobalStore from '../services/globalStore.js'
-import { config } from '~/src/config/index.js'
+// import { config } from '~/src/config/index.js'
 import _ from 'lodash'
 
-const CLIENT_STATE_WEBHOOK = config.get('clientState')
+// const CLIENT_STATE_WEBHOOK = config.get('clientState')
 const logger = createLogger()
 
 export const webHookController = {
@@ -27,9 +27,11 @@ export const webHookController = {
 
     const { clientState } = _request.payload.value[0]
 
-    if (!clientState || clientState !== CLIENT_STATE_WEBHOOK) {
+    if (!clientState || clientState !== 'clientSecretValue123') {
       return h.response({ error: 'Unauthorized' }).code(401)
     }
+
+    logger.info('Got valid request')
 
     const eventId = _request.payload.value[0].clientState
 

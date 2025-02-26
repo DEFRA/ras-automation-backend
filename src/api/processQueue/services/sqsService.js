@@ -79,6 +79,7 @@ export const getAWSToken = async () => {
 }
 
 export const pushSqsMessage = async (data) => {
+  logger.info('Entered into push message container')
   const formattedMsgs = transformDataForSQS(data)
 
   const entries = formattedMsgs.map((message, index) => ({
@@ -99,6 +100,7 @@ export const pushSqsMessage = async (data) => {
 
   proxyFetch(Url, options)
     .then(async (res) => {
+      logger.info('Got success from SQS Queue after pushing')
       await getSqsMessages()
       return res.data
     })
