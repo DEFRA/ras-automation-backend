@@ -98,6 +98,8 @@ export const pushSqsMessage = async (data) => {
     entries
   }
 
+  logger.info('Options object pushing', JSON.stringify(options))
+
   proxyFetch(Url, options)
     .then(async (res) => {
       logger.info('Got success from SQS Queue after pushing')
@@ -105,6 +107,6 @@ export const pushSqsMessage = async (data) => {
       return res.data
     })
     .catch((error) => {
-      logger.error(error)
+      logger.error('Got error while pushing messages to Queue', error)
     })
 }
