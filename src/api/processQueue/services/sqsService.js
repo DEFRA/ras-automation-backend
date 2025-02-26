@@ -23,7 +23,7 @@ export const getSqsMessages = async () => {
   }
   try {
     const data = await sqs.receiveMessage(params).promise()
-    logger.info('messages in SQS queue', data.Messages)
+    logger.info('messages in SQS queue', JSON.stringify(data.Messages))
     if (data.Messages) {
       for (const message of data.Messages) {
         queueInitialInfo.map((record) => {
@@ -69,23 +69,27 @@ export const getAWSToken = async () => {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
-    body: requestData
+    body: JSON.stringify(requestData)
   }
   const response = await proxyFetch(awsTokenURL, options)
 
   const result = await response.json()
 
+  logger.info(`Got access token from gateway endpoint: ${result.access_token}`)
+
   return result.access_token
 }
 
 export const pushSqsMessage = async (data) => {
-  logger.info('Entered into push message container')
+  logger.info(`Entered into push message container: ${JSON.stringify(data)}`)
   const formattedMsgs = transformDataForSQS(data)
 
   const entries = formattedMsgs.map((message, index) => ({
     Id: String(index),
     MessageBody: message
   }))
+
+  logger.info(`Transformed Object:, ${JSON.stringify(entries)}`)
 
   const accessToken = await getAWSToken()
   const Url = config.get('awsGatewayEndPoint')
@@ -95,16 +99,16 @@ export const pushSqsMessage = async (data) => {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json'
     },
-    entries
+    body: JSON.stringify(entries)
   }
 
-  logger.info('Options object pushing', JSON.stringify(options))
+  logger.info(`Options object pushing:, ${JSON.stringify(options)}`)
 
   proxyFetch(Url, options)
     .then(async (res) => {
       logger.info('Got success from SQS Queue after pushing')
       await getSqsMessages()
-      return res.data
+      return res.status
     })
     .catch((error) => {
       logger.error('Got error while pushing messages to Queue', error)
