@@ -2,10 +2,22 @@ import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 import { SendMessageBatchCommand } from '@aws-sdk/client-sqs'
 import { sqsClient } from '../config/awsConfig.js'
 import { transformDataForSQS } from '../utils/index.js'
+import { fromNodeProviderChain } from '@aws-sdk/credential-providers'
 
 const logger = createLogger()
 
+function checkCredentials() {
+  try {
+    const credentials = fromNodeProviderChain()
+    logger.info(`Credentials Fetched: ${JSON.stringify(credentials)}`)
+  } catch (err) {
+    logger.error(`No credentials found: ${err}`)
+  }
+}
+
 export const pushSqsMessage = async (messages) => {
+  const data = checkCredentials()
+  logger.info(`credential info: ${JSON.stringify(data)}`)
   const formattedMsgs = transformDataForSQS(messages)
 
   if (messages.length > 10) {
@@ -18,7 +30,7 @@ export const pushSqsMessage = async (messages) => {
     MessageBody: message
   }))
 
-  logger.info('entries', JSON.stringify(entries))
+  logger.info(`entries: ${JSON.stringify(entries)}`)
 
   const command = new SendMessageBatchCommand({
     QueueUrl:
