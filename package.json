@@ -33,6 +33,7 @@
   "author": "Defra DDTS",
   "license": "OGL-UK-3.0",
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.750.0",
     "@azure/msal-node": "^3.1.0",
     "@babel/runtime": "^7.26.0",
     "@defra/hapi-tracing": "^1.0.0",
