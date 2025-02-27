@@ -3,13 +3,13 @@ import { config } from '~/src/config/index.js'
 
 // Retrieve config for AWS Authentication
 const awsRegion = config.get('azTenantId')
-const awsAccessId = config.get('awsAccessKeyId')
-const awsSecretKey = config.get('awsSecretAccessKey')
+// const awsAccessId = config.get('awsAccessKeyId')
+// const awsSecretKey = config.get('awsSecretAccessKey')
 
 AWS.config.update({
-  region: awsRegion,
-  accessKeyId: awsAccessId,
-  secretAccessKey: awsSecretKey
+  region: awsRegion
+  // accessKeyId: awsAccessId,
+  // secretAccessKey: awsSecretKey
 })
 
 export const sqs = new AWS.SQS()
