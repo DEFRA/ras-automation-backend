@@ -18,7 +18,7 @@ export const pushSqsMessage = async (messages) => {
     MessageBody: message
   }))
 
-  logger.info('entries', entries)
+  logger.info('entries', JSON.stringify(entries))
 
   const command = new SendMessageBatchCommand({
     QueueUrl:
@@ -29,7 +29,6 @@ export const pushSqsMessage = async (messages) => {
   try {
     const data = await sqsClient.send(command)
     logger.info(`Batch messages sent successfully: ${JSON.stringify(data)}`)
-    //  await getSqsMessages()
   } catch (error) {
     logger.error(`Error sending batch messages: ${JSON.stringify(error)}`)
   }
