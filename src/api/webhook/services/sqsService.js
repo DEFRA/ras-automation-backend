@@ -1,6 +1,6 @@
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 import { SendMessageBatchCommand } from '@aws-sdk/client-sqs'
-import { sqsClient } from '../config/awsConfig.js'
+import { sqsClient, awsQueueUrl } from '../config/awsConfig.js'
 import { transformDataForSQS } from '../utils/index.js'
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers'
 
@@ -33,8 +33,7 @@ export const pushSqsMessage = async (messages) => {
   logger.info(`entries: ${JSON.stringify(entries)}`)
 
   const command = new SendMessageBatchCommand({
-    QueueUrl:
-      'https://sqs.eu-west-2.amazonaws.com/332499610595/ras_automation_backend',
+    QueueUrl: awsQueueUrl,
     Entries: entries
   })
 
