@@ -1,9 +1,11 @@
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 import { SendMessageCommand } from '@aws-sdk/client-sqs'
-import { sqsClient, awsQueueUrl } from '../config/awsConfig.js'
+import { sqsClient } from '../config/awsConfig.js'
 import { transformDataForSQS } from '../utils/index.js'
+import { config } from '~/src/config/index.js'
 
 const logger = createLogger()
+const awsQueueUrl = config.get('awsQueueUrl')
 
 export const sendMessages = async (messages) => {
   const formattedMsgs = transformDataForSQS(messages)
@@ -19,7 +21,6 @@ export const pushSqsMessage = async (message) => {
   })
 
   logger.info(`Batch message before sending: ${JSON.stringify(message)}`)
-  logger.info(`Batch message before sending: ${message}`)
 
   try {
     const data = await sqsClient.send(command)

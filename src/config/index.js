@@ -135,29 +135,17 @@ const config = convict({
     default: 'eu-west-2',
     env: 'AWS_REGION'
   },
-  awsAccessKeyId: {
-    doc: 'AWS Access KeyId',
+  awsQueueUrl: {
+    doc: 'AWS Queue URL',
     format: String,
     default: '',
-    env: 'AWS_ACCESS_KEY_ID'
+    env: 'AWS_SQS_QUEUEURL'
   },
-  awsSecretAccessKey: {
-    doc: 'AWS Secret Access Key',
+  awsSQSEndPoint: {
+    doc: 'AWS SQS END POINT',
     format: String,
     default: '',
-    env: 'AWS_SECRET_ACCESS_KEY'
-  },
-  awsGatewayEndPoint: {
-    doc: 'AWS Gateway EndPoint',
-    format: String,
-    default: '',
-    env: 'AWS_GATEWAY_ENDPOINT'
-  },
-  awsTokenURL: {
-    doc: 'AWS Token EndPoint',
-    format: String,
-    default: '',
-    env: 'AWS_TOKEN_ENDPOINT'
+    env: 'AWS_SQS_ENDPOINT'
   },
   sharePointSiteId: {
     doc: 'Sharepoint Site Id',
