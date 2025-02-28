@@ -9,7 +9,7 @@ import {
   getUpdatedFiles
 } from '~/src/api/common/helpers/file-info.js'
 import { REQUIRED_FILES } from '~/src/api/common/constants/queue-initial-data.js'
-import { pushSqsMessage } from '~/src/api/webhook/services/sqsService.js'
+import { sendMessages } from '~/src/api/webhook/services/sqsService.js'
 import GlobalStore from '../services/globalStore.js'
 // import { config } from '~/src/config/index.js'
 import _ from 'lodash'
@@ -59,7 +59,7 @@ export const webHookController = {
     GlobalStore.eventCache.set(eventId, result)
 
     if (result && result.length > 0)
-      await pushSqsMessage(matchFile(REQUIRED_FILES, result))
+      await sendMessages(matchFile(REQUIRED_FILES, result))
     return h.response({ message: 'success' }).code(200)
   }
 }
