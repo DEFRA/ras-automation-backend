@@ -1,9 +1,9 @@
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
-import { SendMessageCommand } from '@aws-sdk/client-sqs'
 import { sqsClient } from '../config/awsConfig.js'
 import { transformDataForSQS } from '../utils/index.js'
 import { config } from '~/src/config/index.js'
 import {
+  SendMessageCommand,
   DeleteMessageCommand,
   ReceiveMessageCommand
 } from '@aws-sdk/client-sqs'
@@ -44,7 +44,10 @@ export const getSqsMessages = async () => {
   }
   try {
     const data = await sqsClient.send(new ReceiveMessageCommand(params))
-    logger.info('messages in SQS queue', JSON.stringify(data.Messages))
+    logger.info(`messages in SQS queue: ${JSON.parse(data.Messages)}`)
+    logger.info(
+      `messages in SQS queue stringified : ${JSON.stringify(data.Messages)}`
+    )
     // if (data.Messages && data.Messages.length > 0) {
     //   for (const message of data.Messages) {
     //     queueInitialInfo.map((record) => {
