@@ -56,9 +56,10 @@ async function startServer() {
             `data message length inside : ${JSON.stringify(messages.length)}`
           )
           for (const message of messages) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            queueInitialInfo.map(async (record) => {
-              if (record.fileName === JSON.parse(message.Body).fileName) {
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            queueInitialInfo.forEach(async (record) => {
+              const messageBody = JSON.parse(message.Body)
+              if (record.fileName === JSON.parse(messageBody).fileName) {
                 record.data = await fetchFileContent(record.filePath)
               }
               return record
