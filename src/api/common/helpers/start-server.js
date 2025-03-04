@@ -57,19 +57,13 @@ async function startServer() {
           )
           for (const message of messages) {
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            queueInitialInfo.forEach(async (record) => {
-              logger.info(
-                `message fileName: ${JSON.parse(message.Body).fileName}`
-              )
-              if (record.fileName === JSON.parse(message.Body).fileName) {
+            for (const record of queueInitialInfo) {
+              const parsedMessage = JSON.parse(message.Body)
+              if (record.fileName === parsedMessage.fileName) {
                 logger.info('Entered inside')
                 record.data = await fetchFileContent(record.filePath)
               }
-              return record
-            })
-            logger.info(
-              `updated queue Info: ${JSON.stringify(queueInitialInfo)}`
-            )
+            }
             await transformExcelData(queueInitialInfo)
           }
           // Delete message from SQS
