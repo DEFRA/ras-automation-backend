@@ -3,17 +3,21 @@ import { createServer } from '../../../api/index.js'
 import { createLogger } from '../../../api/common/helpers/logging/logger.js'
 // import { getSubscriptionId } from '../../../api/common/db/data.js'
 import { fetchFileContent } from '../../processQueue/services/sharepointService.js'
+import { fetchFileInfo } from '../../common/services/getFiles.js'
+import { sharePointFileinfo } from '../../common/helpers/file-info.js'
 import { queueInitialInfo } from '../constants/queue-initial-data.js'
 import { sqsClient } from '~/src/api/processQueue/config/awsConfig.js'
 import { transformExcelData } from '../../processQueue/services/transformService.js'
 import { deleteMessage } from '../../processQueue/services/sqsService.js'
 import { Consumer } from 'sqs-consumer'
 
+let sharePointFile
+
 async function startServer() {
   let server
   const logger = createLogger()
   const awsQueueUrl = config.get('awsQueueUrl')
-  const POLLING_INTERVAL = 2 * 10 * 1000
+  const POLLING_INTERVAL = 5 * 1000
 
   try {
     server = await createServer()
@@ -22,6 +26,17 @@ async function startServer() {
     server.logger.info(
       `Access your backend on http://localhost:${config.get('port')}`
     )
+
+    const fileInfo = await fetchFileInfo()
+    sharePointFile = sharePointFileinfo(fileInfo)
+
+    for (const message of queueInitialInfo) {
+      const { filePath } = message
+
+      // Fetch file content from SharePoint
+      const fileContent = await fetchFileContent(filePath)
+      message.data = fileContent
+    }
 
     const options = {
       config: {
@@ -32,9 +47,13 @@ async function startServer() {
     }
 
     const batchMessageHandler = async (data) => {
+      logger.info(`message: ${JSON.stringify(data)}`)
       try {
-        logger.info(`message: ${JSON.stringify(data)}`)
         if (data.Messages && data.Messages.length > 0) {
+          logger.info(`data message: ${JSON.stringify(data.Messages)}`)
+          logger.info(
+            `data message length: ${JSON.stringify(data.Messages.length)}`
+          )
           for (const message of data.Messages) {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             queueInitialInfo.map(async (record) => {
@@ -43,6 +62,9 @@ async function startServer() {
               }
               return record
             })
+            logger.info(
+              `updated queue Info: ${JSON.stringify(queueInitialInfo)}`
+            )
             await transformExcelData(queueInitialInfo)
           }
           // Delete message from SQS
@@ -61,9 +83,9 @@ async function startServer() {
       queueUrl: awsQueueUrl,
       waitTimeSeconds: options.config.waitTimeSeconds,
       pollingWaitTimeMs: POLLING_INTERVAL,
-      shouldDeleteMessages: true,
+      shouldDeleteMessages: false,
       batchSize: options.config.batchSize,
-      handleMessageBatch: (messages) => batchMessageHandler(messages),
+      handleMessage: (messages) => batchMessageHandler(messages),
       sqs: sqsClient
     })
 
@@ -88,4 +110,4 @@ async function startServer() {
   return server
 }
 
-export { startServer }
+export { startServer, sharePointFile }
