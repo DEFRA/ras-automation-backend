@@ -13,7 +13,7 @@ export const queueInitialInfo = [
   },
   {
     fileName: 'giles_report_official_sensitive_2b.xlsb',
-    filePath: '/Selection/FETF/giles_report_official_sensitive_2b.xls.xlsb'
+    filePath: '/Selection/FETF/giles_report_official_sensitive_2b.xlsb'
   },
   {
     fileName: 'CS_MEASURES.xlsb',
