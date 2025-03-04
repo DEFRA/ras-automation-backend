@@ -86,7 +86,7 @@ async function startServer() {
       pollingWaitTimeMs: POLLING_INTERVAL,
       shouldDeleteMessages: false,
       batchSize: options.config.batchSize,
-      handleMessageBatch: async (messages) => batchMessageHandler(messages),
+      handleMessageBatch: (messages) => batchMessageHandler(messages),
       sqs: sqsClient
     })
 
