@@ -3,11 +3,15 @@ import { createServer } from '../../../api/index.js'
 import { createLogger } from '../../../api/common/helpers/logging/logger.js'
 // import { getSubscriptionId } from '../../../api/common/db/data.js'
 import { fetchFileContent } from '../../processQueue/services/sharepointService.js'
+import { fetchFileInfo } from '../../common/services/getFiles.js'
+import { sharePointFileinfo } from '../../common/helpers/file-info.js'
 import { queueInitialInfo } from '../constants/queue-initial-data.js'
 import { sqsClient } from '~/src/api/processQueue/config/awsConfig.js'
 import { transformExcelData } from '../../processQueue/services/transformService.js'
 import { deleteMessage } from '../../processQueue/services/sqsService.js'
 import { Consumer } from 'sqs-consumer'
+
+let sharePointFile
 
 async function startServer() {
   let server
@@ -22,6 +26,17 @@ async function startServer() {
     server.logger.info(
       `Access your backend on http://localhost:${config.get('port')}`
     )
+
+    const fileInfo = await fetchFileInfo()
+    sharePointFile = sharePointFileinfo(fileInfo)
+
+    for (const message of queueInitialInfo) {
+      const { filePath } = message
+
+      // Fetch file content from SharePoint
+      const fileContent = await fetchFileContent(filePath)
+      message.data = fileContent
+    }
 
     const options = {
       config: {
@@ -95,4 +110,4 @@ async function startServer() {
   return server
 }
 
-export { startServer }
+export { startServer, sharePointFile }
