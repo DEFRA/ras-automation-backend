@@ -1,10 +1,15 @@
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
-import { SendMessageBatchCommand } from '@aws-sdk/client-sqs'
+import {
+  SendMessageBatchCommand,
+  DeleteMessageCommand
+} from '@aws-sdk/client-sqs'
 import { sqsClient } from '../config/awsConfig.js'
 import { transformDataForSQS } from '../utils/index.js'
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers'
+import { config } from '~/src/config/index.js'
 
 const logger = createLogger()
+const awsQueueUrl = config.get('awsQueueUrl')
 
 function checkCredentials() {
   try {
@@ -43,5 +48,19 @@ export const pushSqsMessage = async (messages) => {
     logger.info(`Batch messages sent successfully: ${JSON.stringify(data)}`)
   } catch (error) {
     logger.error(`Error sending batch messages: ${JSON.stringify(error)}`)
+  }
+}
+
+export const deleteMessage = async (receiptHandle) => {
+  const params = {
+    QueueUrl: awsQueueUrl,
+    ReceiptHandle: receiptHandle
+  }
+
+  try {
+    await sqsClient.send(new DeleteMessageCommand(params))
+    logger.info('Message deleted successfully')
+  } catch (error) {
+    logger.error('Error deleting message:', error)
   }
 }
