@@ -48,6 +48,7 @@ async function startServer() {
 
     const batchMessageHandler = async (data) => {
       logger.info(`message: ${JSON.stringify(data)}`)
+      logger.info(`message length: ${JSON.stringify(data.length)}`)
       try {
         if (data.Messages && data.Messages.length > 0) {
           logger.info(`data message: ${JSON.stringify(data.Messages)}`)
@@ -85,7 +86,7 @@ async function startServer() {
       pollingWaitTimeMs: POLLING_INTERVAL,
       shouldDeleteMessages: false,
       batchSize: options.config.batchSize,
-      handleMessage: (messages) => batchMessageHandler(messages),
+      handleMessageBatch: async (messages) => batchMessageHandler(messages),
       sqs: sqsClient
     })
 
