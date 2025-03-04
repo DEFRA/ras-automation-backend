@@ -13,7 +13,7 @@ async function startServer() {
   let server
   const logger = createLogger()
   const awsQueueUrl = config.get('awsQueueUrl')
-  const POLLING_INTERVAL = 2 * 10 * 1000
+  const POLLING_INTERVAL = 5 * 1000
 
   try {
     server = await createServer()
@@ -32,9 +32,13 @@ async function startServer() {
     }
 
     const batchMessageHandler = async (data) => {
+      logger.info(`message: ${JSON.stringify(data)}`)
       try {
-        logger.info(`message: ${JSON.stringify(data)}`)
         if (data.Messages && data.Messages.length > 0) {
+          logger.info(`data message: ${JSON.stringify(data.Messages)}`)
+          logger.info(
+            `data message length: ${JSON.stringify(data.Messages.length)}`
+          )
           for (const message of data.Messages) {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             queueInitialInfo.map(async (record) => {
@@ -43,6 +47,9 @@ async function startServer() {
               }
               return record
             })
+            logger.info(
+              `updated queue Info: ${JSON.stringify(queueInitialInfo)}`
+            )
             await transformExcelData(queueInitialInfo)
           }
           // Delete message from SQS
@@ -61,9 +68,9 @@ async function startServer() {
       queueUrl: awsQueueUrl,
       waitTimeSeconds: options.config.waitTimeSeconds,
       pollingWaitTimeMs: POLLING_INTERVAL,
-      shouldDeleteMessages: true,
+      shouldDeleteMessages: false,
       batchSize: options.config.batchSize,
-      handleMessageBatch: (messages) => batchMessageHandler(messages),
+      handleMessage: (messages) => batchMessageHandler(messages),
       sqs: sqsClient
     })
 
