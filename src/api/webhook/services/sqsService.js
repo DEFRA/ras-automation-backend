@@ -3,11 +3,22 @@ import { sqsClient } from '../config/awsConfig.js'
 import { transformDataForSQS } from '../utils/index.js'
 import { config } from '~/src/config/index.js'
 import { SendMessageCommand } from '@aws-sdk/client-sqs'
+import { fromNodeProviderChain } from '@aws-sdk/credential-providers'
 
 const logger = createLogger()
 const awsQueueUrl = config.get('awsQueueUrl')
 
+export const checkCredentials = () => {
+  try {
+    const credentials = fromNodeProviderChain()()
+    logger.info(`Credentials Fetched: ${JSON.stringify(credentials)}`)
+  } catch (err) {
+    logger.error(`No credentials found: ${err}`)
+  }
+}
+
 export const sendMessages = async (messages) => {
+  checkCredentials()
   const formattedMsgs = transformDataForSQS(messages)
   for (const message of formattedMsgs) {
     await pushSqsMessage(message)
