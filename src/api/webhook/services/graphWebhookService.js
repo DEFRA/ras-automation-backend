@@ -2,21 +2,24 @@ import { getAccessToken } from '~/src/api/processQueue/services/msalService.js'
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/api/common/helpers/logging/logger.js'
 import { proxyFetch } from '~/src/helpers/proxy-fetch.js'
+import fs from 'fs'
 
 const logger = createLogger()
+const subscriptionUrl = 'https://graph.microsoft.com/v1.0/subscriptions'
+const expirationDateTime = new Date()
+expirationDateTime.setDate(expirationDateTime.getDate() + 30)
 
 export const createSubscription = async () => {
   const accessToken = await getAccessToken()
-  const subscriptionUrl = 'https://graph.microsoft.com/v1.0/subscriptions'
   const siteId = config.get('sharePointSiteId')
   const driveId = config.get('sharePointDriveId')
   const clientStateTest = config.get('clientState')
 
   const subscriptionBody = {
     changeType: 'updated',
-    notificationUrl: 'https://90a0-77-101-21-114.ngrok-free.app/api/webhook',
+    notificationUrl: 'https://54d7-77-101-21-114.ngrok-free.app/api/webhook',
     resource: `/sites/${siteId}/drives/${driveId}/root`,
-    expirationDateTime: '2025-03-24T18:23:45.9356913Z',
+    expirationDateTime: expirationDateTime.toISOString(),
     clientState: clientStateTest,
     eventTypes: ['ItemUpdated', 'ItemCreated']
   }
@@ -32,10 +35,78 @@ export const createSubscription = async () => {
 
   try {
     const response = await proxyFetch(subscriptionUrl, options)
-    const { id } = await response.json()
-    return id
+    const data = await response.json()
+    // Store subscription details
+    fs.writeFileSync(
+      'subscription.json',
+      JSON.stringify(
+        {
+          id: data.id,
+          expirationDateTime: data.expirationDateTime
+        },
+        null,
+        2
+      )
+    )
+    scheduleRenewal(data.id, data.expirationDateTime)
   } catch (error) {
     logger.error('Erorr creating subscription:', error)
     throw error
+  }
+}
+
+const scheduleRenewal = (Id, expirationDateTime) => {
+  const expirationTime = new Date(expirationDateTime).getTime()
+  const now = Date.now()
+  const timeUntilRenewal = expirationTime - now - 3 * 24 * 60 * 60 * 1000
+
+  if (timeUntilRenewal > 0) {
+    logger.info(
+      `Subscription ${Id} will be renewed in ${(timeUntilRenewal / 1000 / 60 / 60).toFixed(2)} hours`
+    )
+  } else {
+    logger.info(
+      `Subscription ${Id} has already expired or needs immediate renewal.`
+    )
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    renewWebhookSubscription(Id)
+  }
+}
+
+export const renewWebhookSubscription = async (subscriptionId) => {
+  const accessToken = await getAccessToken()
+  const subscriptionRenewalUrl = `${subscriptionUrl}/${subscriptionId}`
+  const payload = {
+    expirationDateTime: expirationDateTime.toISOString()
+  }
+  const options = {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  }
+  try {
+    const response = await proxyFetch(subscriptionRenewalUrl, options)
+    const data = await response.json()
+    logger.info(`Subscription  Renewed:`, response.data)
+    // Update Stored subscription details
+    fs.writeFileSync(
+      'subscription.json',
+      JSON.stringify(
+        {
+          id: data.id,
+          expirationDateTime: data.expirationDateTime
+        },
+        null,
+        2
+      )
+    )
+
+    // Reschedule next renewal
+    scheduleRenewal(data.id, data.expirationDateTime)
+  } catch (error) {
+    logger.error(`Error renewing subscription:`, error)
   }
 }

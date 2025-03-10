@@ -6,6 +6,7 @@ import { fetchFileContent } from '../../processQueue/services/sharepointService.
 import { fetchFileInfo } from '../../common/services/getFiles.js'
 import { sharePointFileinfo } from '../../common/helpers/file-info.js'
 import { queueInitialInfo } from '../constants/queue-initial-data.js'
+import { initializeSubscription } from '../db/data.js'
 
 let sharePointFile
 
@@ -32,7 +33,7 @@ async function startServer() {
       message.data = fileContent
     }
 
-    // await getSubscriptionId()
+    await initializeSubscription()
   } catch (error) {
     logger.info('Server failed to start :(')
     logger.error(error)
