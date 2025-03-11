@@ -64,6 +64,8 @@ const scheduleRenewal = (Id, expirationDateTime) => {
     logger.info(
       `Subscription ${Id} will be renewed in ${(timeUntilRenewal / 1000 / 60 / 60).toFixed(2)} hours`
     )
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    setTimeout(() => renewWebhookSubscription(Id), timeUntilRenewal)
   } else {
     logger.info(
       `Subscription ${Id} has already expired or needs immediate renewal.`
